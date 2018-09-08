@@ -1,6 +1,6 @@
-#WebP
+# WebP
 
-##[腾讯Bugly干货分享 WebP原理和Android支持现状介绍](https://zhuanlan.zhihu.com/p/23648251)
+## [腾讯Bugly干货分享 WebP原理和Android支持现状介绍](https://zhuanlan.zhihu.com/p/23648251)
 
 * "WebP的优势在于它具有更优的图像数据压缩算法，在拥有肉眼无法识别差异的图像质量前提下，带来更小的图片体积，同时具备了无损和有损的压缩模式、Alpha 透明以及动画的特性，在 JPEG 和 PNG 上的转化效果都非常优秀、稳定和统一。"
 

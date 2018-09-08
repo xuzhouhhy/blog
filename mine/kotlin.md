@@ -1,6 +1,6 @@
-#Kotlin学习 youtube
+# Kotlin学习 youtube
 [youtube视频](https://www.youtube.com/watch?v=H_oGi8uuDpA)
-##var val 定义
+## var val 定义
 * var 定义变量 mutable 易变的
 * val 定义常量 inmutable 不可变的
 * type inference 类型推断
@@ -8,14 +8,14 @@
 * var str:String = "string"
 * 3.14.tiInt()  类型转换
 
-##Array
+## Array
 * var myArray = arrayOf(1,1.23,"Hello")
 
 
-##英语词汇
+## 英语词汇
 * verbose 详细
 
-##code
+## code
 /**
  * Created by derekbanas
  */

@@ -1,6 +1,6 @@
-#Kotlin学习 kotlin.net
+# Kotlin学习 kotlin.net
 [链接](https://www.youtube.com/watch?v=H_oGi8uuDpA)
-##[类和继承](https://www.kotlincn.net/docs/reference/classes.html)
+## [类和继承](https://www.kotlincn.net/docs/reference/classes.html)
 * 类声明由类名、类头（指定其类型参数、主构造函数等）以及由花括号包围的类体构成。类头与类体都是可选的； 如果一个类没有类体，可以省略花括号。
 
 * 在 Kotlin 中的一个类可以有一个主构造函数和一个或多个次构造函数。主构造函数是类头的一部分：它跟在类名（和可选的类型参数）后。
@@ -28,7 +28,7 @@ class Derived() : Base() {
 * 覆盖属性
 属性覆盖与方法覆盖类似；在超类中声明然后在派生类中重新声明的属性必须以 override 开头，并且它们必须具有兼容的类型。每个声明的属性可以由具有初始化器的属性或者具有 getter 方法的属性覆盖。 
 
-##[属性和字段](https://www.kotlincn.net/docs/reference/properties.html)
+## [属性和字段](https://www.kotlincn.net/docs/reference/properties.html)
 * Kotlin的类可以有属性。 属性可以用关键字var 声明为可变的，否则使用只读关键字val。
 * 声明一个属性的完整语法是
 
@@ -39,11 +39,11 @@ var <propertyName>[: <PropertyType>] [= <property_initializer>]
 * 幕后字段
 在 Kotlin 类中不能直接声明字段。然而，当一个属性需要一个幕后字段时，Kotlin 会自动提供。这个幕后字段可以使用field标识符在访问器中引用
     
-##[接口](https://www.kotlincn.net/docs/reference/interfaces.html#%E6%8E%A5%E5%8F%A3)
+## [接口](https://www.kotlincn.net/docs/reference/interfaces.html#%E6%8E%A5%E5%8F%A3)
 * Kotlin 的接口与 Java 8 类似，既包含抽象方法的声明，也包含实现。与抽象类不同的是，接口无法保存状态。它可以有属性但必须声明为抽象或提供访问器实现
 * 你可以在接口中定义属性。在接口中声明的属性要么是抽象的，要么提供访问器的实现。在接口中声明的属性不能有幕后字段（backing field），因此接口中声明的访问器不能引用它们。
 
-##[可见性修饰符](https://www.kotlincn.net/docs/reference/visibility-modifiers.html)
+## [可见性修饰符](https://www.kotlincn.net/docs/reference/visibility-modifiers.html)
 * 类、对象、接口、构造函数、方法、属性和它们的 setter 都可以有 可见性修饰符。 （getter 总是与属性有着相同的可见性。） 在 Kotlin 中有这四个可见性修饰符：private、 protected、 internal 和 public。 如果没有显式指定修饰符的话，默认可见性是 public。
 
 * Kotlin 中外部类不能访问内部类的 private 成员。
@@ -55,7 +55,7 @@ var <propertyName>[: <PropertyType>] [= <property_initializer>]
 }
 println(a)
 
-##[扩展](https://www.kotlincn.net/docs/reference/extensions.html)
+## [扩展](https://www.kotlincn.net/docs/reference/extensions.html)
 * Kotlin 同 C# 和 Gosu 类似，能够扩展一个类的新功能而无需继承该类或使用像装饰者这样的任何类型的设计模式。 这通过叫做 扩展 的特殊声明完成。Kotlin 支持 扩展函数 和 扩展属性。
 
 * 扩展是静态解析的
@@ -73,5 +73,5 @@ package foo.bar
 ​fun Baz.goo() { …… }
 要使用所定义包之外的一个扩展，我们需要在调用方导入它：
 
-##[数据类](https://www.kotlincn.net/docs/reference/data-classes.html)
+## [数据类](https://www.kotlincn.net/docs/reference/data-classes.html)
 * Ko

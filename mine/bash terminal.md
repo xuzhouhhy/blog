@@ -1,4 +1,4 @@
-#bash terminal学习
+# bash terminal学习
 [youtube链接](https://source.android.com/devices/tech/dalvik/dalvik-bytecode)
 
 * ls -l 列出当前目录详细信息 也可以是 ll
