@@ -176,3 +176,5 @@ ViewModel is an Android Jetpack architecture component. See it in use in the Sun
 Android App Architecture 的guide 建议建造一个仓库class来处理这些功能。
 
 ViewModel是一个Android Jetpack 架构组件。了解关于使用在[Sunflower](https://github.com/googlesamples/android-sunflower) demo app
+
+上次更新日期：十月 2, 2018
