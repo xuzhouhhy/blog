@@ -73,4 +73,130 @@ You can extend a LiveData object using the singleton pattern to wrap system serv
 
 分享资源
 
-你可以使用单例模式继承LiveData 类来包裹系统serveces，以便于他们可以在你的app内部共享。LideData类一旦连接到系统servece一次，并且任何需要这个资源的observer仅仅观察这个LiveData类就可以。获取跟多信息，see [Extend LiveData]()
+你可以使用单例模式继承LiveData 类来包裹系统services，以便于他们可以在你的app内部共享。LiveData类一旦连接到系统service一次，并且任何需要这个资源的observer仅仅观察这个LiveData类就可以。获取跟多信息，see [Extend LiveData](https://developer.android.com/topic/libraries/architecture/livedata#extend_livedata)
+
+您可以使用单例模式扩展LiveData对象以包装系统服务，以便可以在应用程序中共享它们。 LiveData对象连接到系统服务一次，然后任何需要该资源的观察者都可以只观看LiveData对象。 有关更多信息，请参阅扩展LiveData。
+
+## Work with LiveData objects
+
+Follow these steps to work with LiveData objects:
+
+遵循这些步骤使用LiveData：
+
+ 1. Create an instance of LiveData to hold a certain type of data. This is usually done within your ViewModel class.
+ 2. Create an Observer object that defines the onChanged() method, which controls what happens when the LiveData object's held data changes. You usually create an Observer object in a UI controller, such as an activity or fragment.
+ 3. Attach the Observer object to the LiveData object using the observe() method. The observe() method takes a LifecycleOwner object. This subscribes the Observer object to the LiveData object so that it is notified of changes. You usually attach the Observer object in a UI controller, such as an activity or fragment.
+
+ 1. 创建一个LiveData实例来持有一个特定类型的数据。这通常用ViewModel类来做
+ 2. 创建一个定义了onChanged()方法的Observer类，当LiveData类持有的数据改变了，这个方法控制了怎样响应。你通常在一个UI 控件中创建一个Observer，例如一个activity或者fragment。
+ 3. 使用observe()方法来attach到Observer类。observe()方法拿到了一个LifecycleOwner类。这订阅了LiveData类的Observer类以便它可以被改变触发。你通常在一个UI 控件中attach the Observer 类，例如一个activity或者fragment.
+
+Note: You can register an observer without an associated LifecycleOwner object using the observeForever(Observer) method. In this case, the observer is considered to be always active and is therefore always notified about modifications. You can remove these observers calling the removeObserver(Observer) method.
+When you update the value stored in the LiveData object, it triggers all registered observers as long as the attached LifecycleOwner is in the active state.
+
+注意：您可以使用observeForever（Observer）方法注册没有关联的LifecycleOwner对象的观察者。在这种情况下，the observer 被认为总是active并且因此总是被修改所触发。你可以使用removeObserver(Observer)方法移除这些observers。当你在LiveData更新存储值，只要attached的LifecycleOwner在active状态，它触发所有已注册的observers。
+
+LiveData allows UI controller observers to subscribe to updates. When the data held by the LiveData object changes, the UI automatically updates in response.
+
+LiveData允许UI控件observers来订阅更新。当LiveData持有的数据改变，相应的，UI会自动更新。
+
+## Create LiveData objects
+创建LiveData类
+
+LiveData is a wrapper that can be used with any data, including objects that implement Collections, such as List. A LiveData object is usually stored within a ViewModel object and is accessed via a getter method, as demonstrated in the following example:
+
+LiveData是可以包裹任何数据，包括实现了Collections的类，例如List。LiveData对象通常存储在ViewModel对象中，并通过getter方法访问，如以下示例所示：
+
+
+	class NameViewModel : ViewModel() {
+  
+    // Create a LiveData with a String
+    val currentName: MutableLiveData<String> by lazy {
+        MutableLiveData<String>()
+    }
+
+    // Rest of the ViewModel...
+	}
+
+Initially, the data in a LiveData object is not set.
+
+初始化是，LiveData类中的数据没有被设置。
+
+Note: Make sure to store LiveData objects that update the UI in ViewModel objects, as opposed to an activity or fragment, for the following reasons:
+To avoid bloated activities and fragments. Now these UI controllers are responsible for displaying data but not holding data state.
+To decouple LiveData instances from specific activity or fragment instances and allow LiveData objects to survive configuration changes.
+You can read more about the benefits and usage of the ViewModel class in the ViewModel guide.
+
+注意：确保存储在ViewModel类中的是更新UI的LiveData类，而不是一个activity或者fragment，有如下原因：
+避免臃肿的activities和fragments。现在这些UI控件的职责是展示数据而不是holding住数据状态。将LiveData实例从特定的activity或者fragment实例分离开来，并且允许LiveData类在配置变化的时候存活。
+你可以在ViewModel guide中阅读更多关于使用ViewModel类的好处
+
+## Observe LiveData objects
+
+In most cases, an app component’s onCreate() method is the right place to begin observing a LiveData object for the following reasons:
+
+在大多数案例中，一个app组件的onCreate()方法是开始observing一个LiveData类的正确位置，有如下原因
+
+ * To ensure the system doesn’t make redundant calls from an activity or fragment’s onResume() method.
+
+ * 为了确保系统没有从activity或者fragment的resume()方法进行冗余的调用
+
+ * To ensure that the activity or fragment has data that it can display as soon as it becomes active. As soon as an app component is in the STARTED state, it receives the most recent value from the LiveData objects it’s observing. This only occurs if the LiveData object to be observed has been set.
+
+ * 为了确保已经有数据的activity或者fragment可以在活跃的时候立即展示数据。只要一个app组件在已经开始的状态，它可以从它正在observing的LiveData类收到最近的数值。这仅仅会在LiveData类已经被观察的时候发生。
+ 
+Generally, LiveData delivers updates only when data changes, and only to active observers. An exception to this behavior is that observers also receive an update when they change from an inactive to an active state. Furthermore, if the observer changes from inactive to active a second time, it only receives an update if the value has changed since the last time it became active.
+
+通常情况下，LiveData仅仅在data改变的时候传递updates，并且仅仅对active observers生效。一个对这种行为的期待是observers也
+
+The following sample code illustrates how to start observing a LiveData object:
+
+	class NameActivity : AppCompatActivity() {
+
+    private lateinit var mModel: NameViewModel
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        // Other code to setup the activity...
+
+        // Get the ViewModel.
+        mModel = ViewModelProviders.of(this).get(NameViewModel::class.java)
+
+
+        // Create the observer which updates the UI.
+        val nameObserver = Observer<String> { newName ->
+            // Update the UI, in this case, a TextView.
+            mNameTextView.text = newName
+        }
+
+        // Observe the LiveData, passing in this activity as the LifecycleOwner and the observer.
+        mModel.currentName.observe(this, nameObserver)
+    }
+	}
+After observe() is called with nameObserver passed as parameter, onChanged() is immediately invoked providing the most recent value stored in mCurrentName. If the LiveData object hasn't set a value in mCurrentName, onChanged() is not called.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
