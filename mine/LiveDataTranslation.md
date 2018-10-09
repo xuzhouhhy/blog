@@ -147,7 +147,7 @@ In most cases, an app component’s onCreate() method is the right place to begi
  
 Generally, LiveData delivers updates only when data changes, and only to active observers. An exception to this behavior is that observers also receive an update when they change from an inactive to an active state. Furthermore, if the observer changes from inactive to active a second time, it only receives an update if the value has changed since the last time it became active.
 
-通常情况下，LiveData仅仅在data改变的时候传递updates，并且仅仅对active observers生效。一个对这种行为的期待是observers也
+通常情况下，LiveData仅仅在data改变的时候传递updates，并且仅仅对active observers生效。当observers从inactive变为active状态的时候，这个时候会发生异常。此外，如果观察者第二次从非活动状态更改为活动状态，则只有在自上次活动状态以来该值发生更改时才会收到更新。
 
 The following sample code illustrates how to start observing a LiveData object:
 
@@ -176,9 +176,215 @@ The following sample code illustrates how to start observing a LiveData object:
 	}
 After observe() is called with nameObserver passed as parameter, onChanged() is immediately invoked providing the most recent value stored in mCurrentName. If the LiveData object hasn't set a value in mCurrentName, onChanged() is not called.
 
+在observe()方法带有nameObserver参数的时候被调用，onChanged()会被立即调用来提供最新的存储在mCurrentName中的数值。如果LiveData没有set mCurrentName的值，onChanged()方法不会被调用。
+
+## Update LiveData objects
+更新LiveData类
+
+LiveData has no publicly available methods to update the stored data. The MutableLiveData class exposes the setValue(T) and postValue(T) methods publicly and you must use these if you need to edit the value stored in a LiveData object. Usually MutableLiveData is used in the ViewModel and then the ViewModel only exposes immutable LiveData objects to the observers.
+
+LiveData没有公开的可以拿到的方法来更新被存储的数据。MutableLiveData类暴露了setValue(T)和postValue(T)方法，并且如果你需要编辑存储在LiveData类的数值，你必须用这些方法。在ViewModel 中MutableLivaData经常被使用，并且ViewModel仅仅暴露不会改变的LiveData类给observers。
+
+After you have set up the observer relationship, you can then update the value of the LiveData object, as illustrated by the following example, which triggers all observers when the user taps a button:
+
+在你已经设置了observer relationship之后，你可以之后更新LiveData类的值，下面的例子作出说明，当用户按下button出发了所有的observers
+
+	mButton.setOnClickListener {
+    val anotherName = "John Doe"
+    mModel.currentName.setValue(anotherName)
+	}
+	
+Calling setValue(T) in the example results in the observers calling their onChanged() methods with the value John Doe. The example shows a button press, but setValue() or postValue() could be called to update mName for a variety of reasons, including in response to a network request or a database load completing; in all cases, the call to setValue() or postValue() triggers observers and updates the UI.
+
+例子中调用setValue(T)方法导致observers使用“John Doe”数值调用它们的onChanged()方法。这个例子展示了按下button，但是setValue()或者postValue()方法可能由很多原因调用来更新mName,包括响应一个网络请求，或者数据库加载完成，在所有的案例中，调用setValue()后者postValue()触发observers更新UI
+
+Note: You must call the setValue(T) method to update the LiveData object from the main thread. If the code is executed in a worker thread, you can use the postValue(T) method instead to update the LiveData object.
+
+注意：你必须在main thread调用setValue()方法来更新LivaData类.如果代码是在 a worker thread执行，你可以使用postValue(T)方法来更新LiveData类.
+
+## Use LiveData with Room
+和Room一起使用LivaData
+
+The Room persistence library supports observable queries, which return LiveData objects. Observable queries are written as part of a Database Access Object (DAO).
+
+Room持久性库支持可观察的查询，这些查询返回LiveData对象。 可观察查询作为数据库访问对象（DAO）的一部分编写。
+
+Room generates all the necessary code to update the LiveData object when a database is updated. The generated code runs the query asynchronously on a background thread when needed. This pattern is useful for keeping the data displayed in a UI in sync with the data stored in a database. You can read more about Room and DAOs in the Room persistent library guide.
+
+当一个数据库被更新了，Room生成了所有必要的代码来更新LivaData类。生成的代码在需要的时候会在a backfround thread 运行异步的查询。在同步存储在数据库中的数据时，持续展示在UI中，这一模式是有用的。你可以在[the Room persistent library guide](https://developer.android.google.cn/topic/libraries/architecture/room)阅读更多关于Room和DAOs。
+
+## Extend LiveData
+扩展LivaData
+
+LiveData considers an observer to be in an active state if the observer's lifecycle is in either the STARTED or RESUMED states The following sample code illustrates how to extend the LiveData class:
+
+LiveData认为observer的lifecycle在started或者resumed状态的时候是在一个active状态。下面的代码说明了怎样扩展LivaData类：
+
+	class StockLiveData(symbol: String) : LiveData<BigDecimal>() {
+    private val mStockManager = StockManager(symbol)
+
+    private val mListener = { price: BigDecimal ->
+        value = price
+    }
+
+    override fun onActive() {
+        mStockManager.requestPriceUpdates(mListener)
+    }
+
+    override fun onInactive() {
+        mStockManager.removeUpdates(mListener)
+    }
+	}
+	
+The implementation of the price listener in this example includes the following important methods:
+
+例子中price listener的实现包括以下重要的方法：
+
+The onActive() method is called when the LiveData object has an active observer. This means you need to start observing the stock price updates from this method.
+
+当LiveData类拥有一个活跃的observer ，onActive()方法会被调用。这意味着你需要从这个方法开始observe the stock price 的更新。
+
+The onInactive() method is called when the LiveData object doesn't have any active observers. Since no observers are listening, there is no reason to stay connected to the StockManager service.
+
+当LiveData类没有任何active observers 的时候onInactived()方法被调用。因为没有observer在监听，没有理由来保持连接到StockManager service.
+
+The setValue(T) method updates the value of the LiveData instance and notifies any active observers about the change.
+
+setValue(T)方法更新了LiveData实例的值并且触发所有的active observers对这次改变的响应。
+
+You can use the StockLiveData class as follows:
+
+
+	override fun onActivityCreated(savedInstanceState: Bundle?) {
+    super.onActivityCreated(savedInstanceState)
+    val myPriceListener: LiveData<BigDecimal> = ...
+    myPriceListener.observe(this, Observer<BigDecimal> { price: BigDecimal? ->
+        // Update the UI.
+    })
+	}
+	
+The observe() method passes the fragment, which is an instance of LifecycleOwner, as the first argument. Doing so denotes that this observer is bound to the Lifecycle object associated with the owner, meaning:
+
+observe()方法传递了fragment作为第一个参数,fragment是一个LifecycleOwner的实例。这样做表示此观察者绑定到与所有者关联的Lifecycle对象，这意味着：
+
+If the Lifecycle object is not in an active state, then the observer isn't called even if the value changes.
+
+如果LifeCycle类没有在active状态，即使数据改变了，然后observer不会被调用。
+
+After the Lifecycle object is destroyed, the observer is automatically removed.
+The fact that LiveData objects are lifecycle-aware means that you can share them between multiple activities, fragments, and services. To keep the example simple, you can implement the LiveData class as a singleton as follows:
+
+在LifeCycle类is destroyed后，observer自动移除。LiveData是lifecycle-aware的事实意味着你可以在多个activities、fragments、services之间分享它们。为了让例子简单，你可以实现LiveData类作为一个单例：
+
+	class StockLiveData(symbol: String) : LiveData<BigDecimal>() {
+    private val mStockManager: StockManager = StockManager(symbol)
+
+    private val mListener = { price: BigDecimal ->
+        value = price
+    }
+
+    override fun onActive() {
+        mStockManager.requestPriceUpdates(mListener)
+    }
+
+    override fun onInactive() {
+        mStockManager.removeUpdates(mListener)
+    }
+
+    companion object {
+        private lateinit var sInstance: StockLiveData
+
+        @MainThread
+        fun get(symbol: String): StockLiveData {
+            sInstance = if (::sInstance.isInitialized) sInstance else StockLiveData(symbol)
+            return sInstance
+        }
+    }
+	}
+	
+And you can use it in the fragment as follows:
+
+	class MyFragment : Fragment() {
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        StockLiveData.get(symbol).observe(this, Observer<BigDecimal> { price: BigDecimal? ->
+            // Update the UI.
+        })
+
+    }
+    
+Multiple fragments and activities can observe the MyPriceListener instance. LiveData only connects to the system service if one or more of them is visible and active.
+
+多个fragments和activities可以observe MyPriceListener实例。如果其中一个或多个是visible或者active，LiveData就会连接到system service.
+
+##Transform LiveData
 
 
 
+You may want to make changes to the value stored in a LiveData object before dispatching it to the observers, or you may need to return a different LiveData instance based on the value of another one. The Lifecycle package provides the Transformations class which includes helper methods that support these scenarios.
+
+在分发到observers之前，你可能想要改变存储在LiveData类中的数据，或者你可能需要返回一个不同的LiveData实例，建立在另一个数值的基础上。LifeCycle包提供了Transformation类，包括帮助方法来支持这些场景。
+
+Transformations.map()
+
+Applies a function on the value stored in the LiveData object, and propagates the result downstream.
+
+对存储在LiveData对象中的值应用函数，并将结果传播到下游。
+
+	val userLiveData: LiveData<User> = UserLiveData()
+	val userName: LiveData<String> = Transformations.map(userLiveData) {
+    user -> "${user.name} ${user.lastName}"
+	}
+
+Transformations.switchMap()
+
+Similar to map(), applies a function to the value stored in the LiveData object and unwraps and dispatches the result downstream. The function passed to switchMap() must return a LiveData object, as illustrated by the following example:
+
+类似于map(),对存储在LiveData中的数值应用函数，并且拆分和分发这些结果到下游。
+
+	private fun getUser(id: String): LiveData<User> {
+	...
+	}
+		val userId: LiveData<String> = ...
+	val user = Transformations.switchMap(userId) 	{ id -> getUser(id) }
+
+
+You can use transformation methods to carry information across the observer's lifecycle. The transformations aren't calculated unless an observer is watching the returned LiveData object. Because the transformations are calculated lazily, lifecycle-related behavior is implicitly passed down without requiring additional explicit calls or dependencies.
+
+你可以在observer的lifecycle中使用transformation methods来carry信息。transformations是不可计算的，除非observer正在watching返回的LiveData类。因为transformations是lazily计算的，lifecycle-related行为是隐式传递，不需要明确的嗲用或者依赖。
+
+If you think you need a Lifecycle object inside a ViewModel object, a transformation is probably a better solution. For example, assume that you have a UI component that accepts an address and returns the postal code for that address. You can implement the naive ViewModel for this component as illustrated by the following sample code:
+
+如果你认为在ViewModel类中需一个LifeCycle
+
+
+	class MyViewModel(private val repository: PostalCodeRepository) : ViewModel() {
+
+    private fun getPostalCode(address: String): LiveData<String> {
+        // DON'T DO THIS
+        return repository.getPostCode(address)
+    }
+	}
+	
+The UI component then needs to unregister from the previous LiveData object and register to the new instance each time it calls getPostalCode(). In addition, if the UI component is recreated, it triggers another call to the repository.getPostCode() method instead of using the previous call’s result.
+
+Instead, you can implement the postal code lookup as a transformation of the address input, as shown in the following example:
+
+
+	class MyViewModel(private val repository: PostalCodeRepository) : ViewModel() {
+    private val addressInput = MutableLiveData<String>()
+    private val postalCode: LiveData<String> =
+            Transformations.switchMap(addressInput) { address -> repository.getPostCode(address) }
+
+
+    private fun setInput(address: String) {
+        addressInput.value = address
+    }
+	}
+	
+In this case, the postalCode field is public and final, because the field never changes. The postalCode field is defined as a transformation of the addressInput, which means that the repository.getPostCode() method is called when addressInput changes. This is true if there is an active observer, if there are no active observers at the time repository.getPostCode() is called, no calculations are made until an observer is added.
+
+This mechanism allows lower levels of the app to create LiveData objects that are lazily calculated on demand. A ViewModel object can easily obtain references to LiveData objects and then define transformation rules on top of them.	
 
 
 
