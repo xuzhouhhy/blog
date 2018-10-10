@@ -355,7 +355,7 @@ You can use transformation methods to carry information across the observer's li
 
 If you think you need a Lifecycle object inside a ViewModel object, a transformation is probably a better solution. For example, assume that you have a UI component that accepts an address and returns the postal code for that address. You can implement the naive ViewModel for this component as illustrated by the following sample code:
 
-如果你认为在ViewModel类中需一个LifeCycle
+如果你认为在ViewModel类中需一个LifeCycle类，transformation可能是更好的解决方案。例如，假设你有一个UI组件是接收一个地址并且返回这个地址的邮政编码。你可以为这个组件实现the native ViewModel，下面的代码作为说明：
 
 
 	class MyViewModel(private val repository: PostalCodeRepository) : ViewModel() {
@@ -368,8 +368,11 @@ If you think you need a Lifecycle object inside a ViewModel object, a transforma
 	
 The UI component then needs to unregister from the previous LiveData object and register to the new instance each time it calls getPostalCode(). In addition, if the UI component is recreated, it triggers another call to the repository.getPostCode() method instead of using the previous call’s result.
 
+UI组件人后需要对之前的LiveData类进行解注册，并且它每次调用getPostalCode()的时候注册到新的实例。此外，如果重新创建UI组件，它将触发另一个对repository.getPostCode（）方法的调用，而不是使用前一个调用的结果。
+
 Instead, you can implement the postal code lookup as a transformation of the address input, as shown in the following example:
 
+相反地，你可以把输入地址的转换查找the postal code,如下代码展示：
 
 	class MyViewModel(private val repository: PostalCodeRepository) : ViewModel() {
     private val addressInput = MutableLiveData<String>()
@@ -384,9 +387,51 @@ Instead, you can implement the postal code lookup as a transformation of the add
 	
 In this case, the postalCode field is public and final, because the field never changes. The postalCode field is defined as a transformation of the addressInput, which means that the repository.getPostCode() method is called when addressInput changes. This is true if there is an active observer, if there are no active observers at the time repository.getPostCode() is called, no calculations are made until an observer is added.
 
+在这个案例中,the postalCode field 是public 、final,因为这个field永远不会改变。The postalCode field 被定义为地址输入的转拜年，这意味着当输入地址变化的时候，repository.getPostCode()方法被调用。当有一个active observer的时候，这是正确的，如果repository.getPostCode()被调用的时候，没有 active observers，直到一个observer被added之后才会有计算发生。
+
 This mechanism allows lower levels of the app to create LiveData objects that are lazily calculated on demand. A ViewModel object can easily obtain references to LiveData objects and then define transformation rules on top of them.	
+这种机制允许更低级别的app来创建通过命令计算懒加载的LiveData类。一个ViewModel类可以简单的获得LiceData类的引用，并且之后定义他们的转换规则。
 
+###Create new transformations
 
+创建新的转换
+
+There are a dozen different specific transformation that may be useful in your app, but they aren’t provided by default. To implement your own transformation you can you use the MediatorLiveData class, which listens to other LiveData objects and processes events emitted by them. MediatorLiveData correctly propagates its state to the source LiveData object. To learn more about this pattern, see the reference documentation of the Transformations class.
+
+在你的app中，有许多不同的特定的转换可能会被用到，但是没有默认提供的。你可以使用MediatorLiveData类来实现你自己的转换，这个类坚挺其他的LivaData类并且处理它们发射的事件。MediatorLiveData正确的传播它的状态给源LiveData类，see the reference documentation of [Transformations](https://developer.android.google.cn/reference/android/arch/lifecycle/Transformations) cladd,来了解更多这种模式。
+
+##Merge multiple LiveData sources
+
+合并多个LiveData源
+
+MediatorLiveData is a subclass of LiveData that allows you to merge multiple LiveData sources. Observers of MediatorLiveData objects are then triggered whenever any of the original LiveData source objects change.
+
+MediatorLiveData是LiveData的超类，它允许你喝冰多个LiveData源。无论何时任意的远端的LiveData源改变了，Observers of MediatorLiveData objects都会被触发。
+
+For example, if you have a LiveData object in your UI that can be updated from a local database or a network, then you can add the following sources to the MediatorLiveData object:
+
+例如，如果你在UI上有可以被本地数据库或者网络更新的LiveData类，然后你可以添加如下的源到MediatorLiveData类
+
+ * A LiveData object associated with the data stored in the database.
+ * 一个关联存储在数据库中数据的LiveData
+ * A LiveData object associated with the data accessed from the network.
+ * 一个关联网络拿到数据的LiveData
+ 
+Your activity only needs to observe the MediatorLiveData object to receive updates from both sources. For a detailed example, see the Addendum: exposing network status section of the Guide to App Architecture.
+
+你的activity仅仅需要观察MediatorLiveData类就可以接受两个来源的更新么。关于细节描述，看附录：暴漏应用架构治安案的网络状态部分。
+
+## Additional resources
+
+额外的资源
+
+LiveData is an Android Jetpack architecture component. See it in use in the Sunflower demo app.
+
+For additional information on using LiveData with Snackbar messages, navigation events, and other events, read this post.
+
+关于和Snackbar messages,navigation events,或者其他事件一起使用LivaDat，read this [post](https://medium.com/androiddevelopers/livedata-with-snackbar-navigation-and-other-events-the-singleliveevent-case-ac2622673150)得到更多的信息。
+
+google update time 2018年10月2日
 
 
 
