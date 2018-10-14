@@ -1,0 +1,1 @@
+A activity startActivityForResult() B activity,B activity 关闭的时候，b onPause() -> A onActivityResult() -> B onStop() -> B onDestroy()
