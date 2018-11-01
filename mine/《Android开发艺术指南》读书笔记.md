@@ -27,3 +27,8 @@ If a registered callback's process goes away, this class will take care of autom
 * 拿到每一个注册接口的IBinder.DeathRecipient，当进程go away的时候，用来把它清除出列表
 * 通过锁住接口底层list来处理多线程的inconming调用，并且可以thread-safe的不拿到list的lock的进行迭代list的快照
 使用，和service一起创建单个实例，通过register和ungister在service注册client。通过beginBroadcast(), getBroadcastItem(int), and finishBroadcast()可以进行注册的客户端的回调
+
+## Window
+
+### 文章链接
+[Android 带你彻底理解 Window 和 WindowManager](https://blog.csdn.net/yhaolpz/article/details/68936932)
