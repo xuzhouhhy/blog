@@ -40,3 +40,29 @@ notice:
 * 为了确保上传数据的顺序，需要维护一个上课内容item的index列表，通过大小排序进行上传后的排序。首先上传条目的顺序是无法控制的，其次上传成功的先后顺序也是无法控制的，所以上传时需要维护一个递增的index，所以即使删除某个条目，其余index也不变。
 
 ## 安全策略
+
+
+## 文件上传
+[Retrofit Multipart 多文件上传](http://w4lle.com/2016/11/28/retrofit-multipart/)
+
+[关于HTTP协议，一篇就够了](https://www.cnblogs.com/ranyonsue/p/5984001.html)
+
+## 文件下载
+
+[DownloadManager使用详解](https://blog.csdn.net/qq_19431333/article/details/52798105)
+
+[Android中Uri和Path之间的转换](https://www.jianshu.com/p/33bc363290e9)
+
+[Android Uri to Path](https://www.jianshu.com/p/f9a63fcc0b91)
+
+	文件保存路径
+	//设置文件的保存的位置[三种方式]
+	//第一种
+	//file:///storage/emulated/0/Android/data/your-package/files/Download/update.apk
+	req.setDestinationInExternalFilesDir(context, Environment.DIRECTORY_DOWNLOADS, "update.apk");
+	//第二种
+	//file:///storage/emulated/0/Download/update.apk
+	req.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "update.apk");
+	//第三种 自定义文件路径
+	req.setDestinationUri()
+

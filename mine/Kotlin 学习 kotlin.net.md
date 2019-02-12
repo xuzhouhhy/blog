@@ -75,3 +75,9 @@ package foo.bar
 
 ## [数据类](https://www.kotlincn.net/docs/reference/data-classes.html)
 * Ko
+
+## 函数和Lambda表达式
+
+## kotlin concurrency
+
+[kotlin并发性](https://www.jianshu.com/p/3963e64e7fe7)
