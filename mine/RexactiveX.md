@@ -1,4 +1,5 @@
-# ReactiveX
+# ReactiveX 翻译
+翻译文，[链接](http://reactivex.io/intro.html)
 ## [整体介绍](http://reactivex.io/)
 ### 设计思想
 观察者模式干得好。ReacticeX是观察者模式、迭代模式、函数式编程的最好的思想的组合。
