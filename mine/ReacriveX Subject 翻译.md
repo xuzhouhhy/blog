@@ -1,0 +1,40 @@
+# ReacriveX Subject
+
+翻译文[链接](http://reactivex.io/documentation/subject.html)
+
+Subject在一些ReactiveX的实现中是可见的，它是一系列桥接器或代理，即可作为observer,也可以是Observable。因为它是一个observer，它可以订阅到一个或更多的Observables，并且它是一个Observable，它可以通过重新发送items，也可以发射新的items。
+
+因为一个Subject订阅到一个Observable，它会触发Observable发射items（如果是cold Observbale，就是说，如果它它需要在发射前等待subscription）。这可以使原始cold Observable变为hot Observable。
+
+## Varieties of Subject
+
+对用例设计了四种Subject。在实现中，不是所有的都可以拿到，并且一些实现使用了其他的命名conventions(约定)（例如，在RxScala，”PublishSubject“在这里被叫做”Subject“）
+
+### AsyncSubject
+
+AsyncSubject发射源Observble的最后一个value，并且只发射最后一个value。并且仅在源Observable完整之后发射。如果源Observable没有发射任何values，AsyncSubject也会不发射任何values后完成。
+
+他也将发射同行的最后一个value给observers序列。然而，如果源Observable因错误终结了，AsyncSubject将不会发射任何items，但是会简单地传递源Observable发射的错误。
+
+### BehaviorSubject
+
+当一个observer订阅一个BehaviorSubject,它从源observable最近已发射的item开始发射（或者如果还没有发射，将发射一个种子/默认值），并且然后继续发射任何其他的源Observable items。
+
+然而，如果源Observable因错误终结了，BehaviorSubject将不会发射任何items给observers序列，但是会简单的将源Observbale的错误传递出去。
+
+### PublishSubject
+
+PublishSubject仅在subscription之后，发射源Observable已发射的items。
+
+注意PublishSubject会在创建后立即开始发射items，因此在Subject创建和observer订阅到它的中间时间，有丢失一个或多个items的风险。如果你需要保证所有来自Observable items的传输，你将需要在Create时人工的引入cold Observable（在开始发射items之前检查所有的observers已经suscribed），或者使用ReplaySubject。
+
+如果源Observable因错误终结了，PublishSubject将不会发射任何items给observers序列，但是会简单的将源Observbale的错误传递出去。
+
+### ReplaySubject
+
+不管observer何时订阅，ReplaySubject会发射所有的源Observable的所有已发射的items。
+
+还有ReplaySubject的版本，一旦重放缓冲区有可能超过一定大小，或者自项目最初发出后经过指定的时间跨度，它将丢弃旧项目。
+
+如果您使用ReplaySubject作为观察者，请注意不要从多个线程调用其onNext方法（或其他方法），因为这可能导致重合（非顺序）调用，这违反了Observable合约并产生歧义 在结果
+Subject中，应首先重播哪个项目或通知。

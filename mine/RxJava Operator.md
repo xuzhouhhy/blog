@@ -34,3 +34,6 @@ Never 创建一个不发射items的Observable，也不终止
 Throw 创建一个不发射items的Observable，使用一个错误终止
 
 Empty, Never, and Throw operators 使用非常特定和限制的行为生成Observables。适合测试，与其他Observables相结合，或作为参数，与期望其他Observables作为参数的运算符。
+
+## Interval
+create an Observable that emits a sequence of integers spaced by a given time interval

@@ -1,0 +1,14 @@
+# ReacriveX Scheduler
+
+翻译文[链接](http://reactivex.io/documentation/scheduler.html)
+
+#Scheduler
+如果你想吧多线程引入到Observable operators的级联关系中，你可以通过使用这些operators（或者特定的Observables）来对特定的Schedulers操作。
+
+一些ReactiveX Observable operators通过使用Scheduler作为参数进行改变。这些导致operator在特定的Schedulers上做他的工作。
+
+默认的，一个Observable和operators链将会做自己的工作，并且不会修改他的observers，这些工作会在Suscribe方法被调用的线程上。SubscribeOn操作符通过确定一个Observable应当工作所在的Scheduler来修改行为。ObserveOn operator 确定一个Scheduler，让Observble用来发送修改到他的observers。
+
+插图中说明，SubscriberOn Operator决定了Observable将在那个线程开始操作，不管这个操作符在operator链中哪一点被调用。另一方面，
+ObserverOn决定了Observable将使用这个操作符下的线程。因此呢，你可以在Observable operators链中多次使用ObserverOn，以便改变这些操作符操作的线程。
+
